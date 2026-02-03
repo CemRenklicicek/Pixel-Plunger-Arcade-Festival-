@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Infinite Cube Platformer</title>
+<style>
+  body { margin: 0; overflow: hidden; background: #1f3748; }
+  canvas { display: block; background: #1f3748; }
+  #winMessage {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px;
+    color: gold;
+    display: none;
+    text-shadow: 2px 2px 5px #000;
+  }
+  #restartButton {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 25px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<div id="winMessage">You collected the required treasures! You win!</div>
+<button id="restartButton">Restart Game</button>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let player = { x: 200, y: canvas.height - 100, size: 50, vx: 0, vy: 0 };
+let keys = {};
+let gravity = 1;
+let ceilingHeight = canvas.height * 2/3;
+let groundY = canvas.height - 80;
+let ceilingHoles = [];
+let groundHoles = [];
+let treasures = [];
+let collectedTreasures = 0;
+let requiredTreasures = Math.floor(Math.random() * 8) + 15;
+let totalTreasures = 50;
+let scrollX = 0;
+let invisibleWallLeft = null;
+let invisibleWallRight = null;
+const playerScreenX = 200;
+const winMessage = document.getElementById('winMessage');
+const restartButton = document.getElementById('restartButton');
+let showHUD = true;
+let startTime = Date.now();
+let winTime = null;
+let finalPoints = 0;
+const treasureColors = ['gold', 'red', 'blue', 'green', 'purple', 'orange', 'pink', 'cyan'];
+const treasureShapes = ['square','circle','triangle'];
+
+function generateTreasures(startX, count) {
+    treasures = [];
+    let positions = [];
+    let spacing = Math.floor(canvas.width / 1.5);
+    for(let i=0; i<count; i++) {
+        let size = 40 + Math.random()*30;
+        let x;
+        do { x = startX + i*spacing + Math.random()*300; }
+        while(positions.some(p => Math.abs(p - x) < size + 20));
+        positions.push(x);
+        let y = Math.random()*(ceilingHeight/2);
+        let color = treasureColors[Math.floor(Math.random()*treasureColors.length)];
+        let shape = treasureShapes[Math.floor(Math.random()*treasureShapes.length)];
+        treasures.push({ x, y, size, color, shape, collected: false });
+    }
+    if(positions.length > 0){
+        invisibleWallLeft = positions[0] - 50;
+        invisibleWallRight = positions[positions.length-1] + 50;
+    }
+}
+
+generateTreasures(player.x - 3000, totalTreasures);
+
+function drawHills(offset) {
+    ctx.fillStyle = '#2e6a3d';
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    for (let x = 0; x <= canvas.width; x++) {
+        let y = groundY - 15 * Math.sin((x + offset) * 0.003);
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawCeiling() {
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, canvas.width, ceilingHeight);
+    ctx.fillStyle = '#1f3748';
+    ceilingHoles.forEach(h => ctx.fillRect(h.x - scrollX, h.y, h.size, h.size));
+    treasures.forEach(t => {
+        if(!t.collected) {
+            ctx.fillStyle = t.color;
+            ctx.shadowColor = t.color;
+            ctx.shadowBlur = 15;
+            switch(t.shape){
+                case 'square': ctx.fillRect(t.x - scrollX, t.y, t.size, t.size); break;
+                case 'circle': ctx.beginPath(); ctx.arc(t.x - scrollX + t.size/2, t.y + t.size/2, t.size/2, 0, Math.PI*2); ctx.fill(); break;
+                case 'triangle': ctx.beginPath(); ctx.moveTo(t.x - scrollX + t.size/2, t.y); ctx.lineTo(t.x - scrollX, t.y + t.size); ctx.lineTo(t.x - scrollX + t.size, t.y + t.size); ctx.closePath(); ctx.fill(); break;
+            }
+            ctx.shadowBlur = 0;
+        }
+    });
+}
+
+function drawPlayer() {
+    ctx.fillStyle = '#FF4500';
+    ctx.shadowColor = 'rgba(255, 69, 0, 0.8)';
+    ctx.shadowBlur = 25;
+    ctx.fillRect(playerScreenX, player.y, player.size, player.size);
+    ctx.shadowBlur = 0;
+}
+
+let particles = [];
+function updatePlayer() {
+    let speed = 12;
+    player.vx = 0;
+    if(keys['a']) player.vx = -speed;
+    if(keys['d']) player.vx = speed;
+
+    player.x += player.vx;
+    player.vy += gravity;
+    player.y += player.vy;
+
+    let visibleTreasures = treasures.filter(t => !t.collected);
+    if(visibleTreasures.length > 0){
+        invisibleWallLeft = Math.min(...visibleTreasures.map(t => t.x)) - 50;
+        invisibleWallRight = Math.max(...visibleTreasures.map(t => t.x)) + 50;
+    }
+    if(player.x < invisibleWallLeft) player.x = invisibleWallLeft;
+    if(player.x + player.size > invisibleWallRight) player.x = invisibleWallRight - player.size;
+
+    let groundLevel = groundY - 15 * Math.sin(player.x * 0.003);
+    if(player.y + player.size > groundLevel) { player.y = groundLevel - player.size; player.vy = 0; }
+    if(player.y < 0) { player.y = 0; player.vy = 0; }
+
+    if(player.y < ceilingHeight && player.y > 0) {
+        let hole = { x: player.x - 10, y: player.y, size: player.size + 20 };
+        ceilingHoles.push(hole);
+        for(let i=0; i<15; i++){
+            let hue = Math.floor(Math.random()*360);
+            particles.push({ x: hole.x + hole.size/2, y: hole.y + hole.size/2, vx:(Math.random()-0.5)*5, vy:(Math.random()-0.5)*5, alpha:1, color:`hsl(${hue},100%,50%)` });
+        }
+    }
+
+    treasures.forEach(t => {
+        if(!t.collected){
+            let px = player.x + player.size/2;
+            let py = player.y + player.size/2;
+            let tx = t.x + t.size/2;
+            let ty = t.y + t.size/2;
+            let dist = Math.sqrt((px-tx)**2 + (py-ty)**2);
+            if(dist < player.size/2){
+                t.collected = true;
+                collectedTreasures++;
+                for(let i=0; i<10; i++){
+                    particles.push({ x: t.x+t.size/2, y: t.y+t.size/2, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4, alpha:1, color: t.color });
+                }
+            }
+        }
+    });
+
+    if(collectedTreasures >= requiredTreasures && winTime === null){
+        winTime = Date.now();
+        let elapsed = (winTime - startTime)/1000;
+        let bonus = Math.max(0, Math.floor((120 - elapsed)/5));
+        finalPoints = collectedTreasures + bonus;
+        winMessage.innerText = `You win! Points: ${finalPoints} (Bonus: ${bonus})`;
+        winMessage.style.display = 'block';
+        restartButton.style.display = 'block';
+        showHUD = false;
+    }
+
+    scrollX = player.x - playerScreenX;
+}
+
+function updateParticles(){
+    particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.02; });
+    particles = particles.filter(p=>p.alpha>0);
+}
+function drawParticles(){
+    particles.forEach(p => { ctx.fillStyle = p.color.startsWith('hsl') ? p.color.replace(/,1\)/,`,`+p.alpha+`)`) : `rgba(${p.color==='red'?255:p.color==='blue'?0:p.color==='green'?0:p.color==='purple'?128:p.color==='orange'?255:p.color==='pink'?255:0},${p.color==='red'?0:p.color==='blue'?0:p.color==='green'?255:p.color==='purple'?0:p.color==='orange'?165:p.color==='pink'?192:255},${p.color==='red'?0:p.color==='blue'?255:p.color==='green'?0:p.color==='purple'?128:p.color==='orange'?0:p.color==='pink'?203:0},${p.alpha})`; ctx.fillRect(p.x - scrollX, p.y, 5, 5); });
+}
+
+function drawHoles() { ctx.fillStyle = '#2e4e65'; groundHoles.forEach(h => ctx.fillRect(h.x - scrollX, h.y, h.size, h.size)); }
+
+function drawHUD() {
+    if(showHUD){
+        ctx.fillStyle = 'white';
+        ctx.font = '40px Arial';
+        ctx.fillText(`Treasures: ${collectedTreasures} / ${requiredTreasures}`, 20, 50);
+        ctx.fillText(`Target: 15-22`, 20, 90);
+        let elapsed = Math.floor((Date.now()-startTime)/1000);
+        ctx.fillText(`Time: ${elapsed}s`, 20, 130);
+    }
+}
+
+function gameLoop() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawCeiling(); drawHills(scrollX); drawHoles(); drawParticles(); drawPlayer(); drawHUD();
+    updatePlayer(); updateParticles();
+    requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if(e.key===' ') player.vy=-40; });
+document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+restartButton.addEventListener('click', () => {
+    player.x = 200; player.y = canvas.height-100; player.vx=0; player.vy=0;
+    scrollX=0; collectedTreasures=0; ceilingHoles=[]; groundHoles=[]; particles=[];
+    requiredTreasures = Math.floor(Math.random()*8)+15;
+    startTime = Date.now();
+    winTime = null;
+    finalPoints = 0;
+    generateTreasures(player.x - 3000, totalTreasures);
+    showHUD = true; winMessage.style.display='none'; restartButton.style.display='none';
+});
+
+window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; ceilingHeight=canvas.height*2/3; groundY=canvas.height-80; });
+
+gameLoop();
+</script>
+</body>
+</html>
