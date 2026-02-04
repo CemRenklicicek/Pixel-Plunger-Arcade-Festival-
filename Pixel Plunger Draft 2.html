@@ -43,7 +43,7 @@
   }
 
   #funFact {
-    font-size: 22px;
+    font-size: 28px;
     color: white;
     margin-bottom: 30px;
     max-width: 90%;
@@ -67,39 +67,40 @@
 
   /* Start screen */
   #startScreen {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
     background: #1c1c1c;
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
     text-align: center;
-    z-index: 10;
-    padding: 20px;
+    z-index: 100;
   }
 
   #startScreen h1 {
-    font-size: 70px;
+    font-size: 130px;
     margin-bottom: 20px;
     color: gold;
     text-shadow: 2px 2px 5px #000;
   }
 
   #startScreen p {
-    font-size: 24px;
-    max-width: 600px;
-    margin-bottom: 20px;
+    font-size: 35px;
+    max-width: 1000px;
+    margin-bottom: 50px;
   }
 
   #controlsInfo {
-    font-size: 22px;
-    margin-bottom: 40px;
-    max-width: 600px;
+    font-size: 35px;
+    margin-bottom: 35px;
+    max-width: 1500px;
   }
 
   #startButton {
@@ -109,6 +110,7 @@
     background: gold;
     color: black;
     border: none;
+    margin-bottom: 80px;
     border-radius: 10px;
     transition: transform 0.2s;
   }
@@ -124,12 +126,12 @@
 
 <div id="startScreen">
   <h1>Pixel Plunger</h1>
-  <p>Spring door de grote oppervlakte boven jou om schatten te pakken. Verzamel genoeg schatten om te winnen. Bonuspunten verdien je door snel te zijn.</p>
+  <p>Spring door de grote oppervlakte boven jou om schatten te pakken. Verzamel genoeg schatten om te winnen. Bonuspunten verdien je door snel te zijn</p>
   <div id="controlsInfo">
-    Besturing: <br>
-    - A / ← : naar links bewegen<br>
-    - D / → : naar rechts bewegen<br>
-    - Spatie : springen
+    Toets "A" om naar links te gaan<br>
+    Toets "D" om naar rechts te gaan<br>
+    Toets "Spatie" om te springen<br>
+    Toets "Spatie" meerdere keren om hoger te komen
   </div>
   <button id="startButton">Beginnen</button>
 </div>
@@ -184,7 +186,7 @@ const funFacts = [
 "Wist je dat Pac-Man oorspronkelijk 'Puck Man' heette?",
 "Wist je dat Space Invaders in 1978 een enorme arcade rage veroorzaakte?",
 "Wist je dat Donkey Kong de eerste game was waarin Mario verscheen?",
-"Wist je dat het Atari 2600-systeem in de jaren 70 populair was?",
+"Wist je dat de allereerste computerspelletjes al in de jaren 50 werden gemaakt, zoals “Tennis for Two”?",
 "Wist je dat Tetris in 1984 uitkwam en nog steeds geliefd is?",
 "Wist je dat de eerste joystick werd gebruikt in de jaren 60 voor computerspellen?",
 "Wist je dat Frogger in 1981 werd uitgebracht en beroemd werd om zijn verkeersuitdaging?",
@@ -193,7 +195,7 @@ const funFacts = [
 "Wist je dat de meeste oude arcade spellen ontworpen waren om zo snel mogelijk geld te verdienen?",
 "Wist je dat Street Fighter II in 1991 een revolutie in vechtgames veroorzaakte?",
 "Wist je dat Pac-Man's ontwerp werd geïnspireerd door een pizzapunt?",
-"Wist je dat veel klassieke arcadespellen nog steeds worden nagebootst op smartphones?"
+"Wist je dat de videospelcrash van 1983 in de VS werd veroorzaakt door overproductie en slechte kwaliteit spellen?"
 ];
 
 // Generate treasures with bigger size and closer distances
@@ -317,7 +319,7 @@ function updatePlayer() {
         let elapsed = (winTime - startTime)/1000;
         let bonus = Math.max(0, Math.floor(50 + Math.max(0, (60 - elapsed)))); // 50 points after ~1 minute
         finalPoints = collectedTreasures + bonus;
-        winMessage.innerHTML = `Je hebt alle benodigde schatten verzameld.<br>Goed gedaan!<br>Score: ${finalPoints} (bonus: ${bonus})`;
+        winMessage.innerHTML = `Je hebt alle benodigde schatten verzameld.<br>Goed gedaan!<br>Score: ${finalPoints} (Bonus: ${bonus})`;
 
         // Random fun fact
         funFactDiv.innerHTML = funFacts[Math.floor(Math.random()*funFacts.length)];
