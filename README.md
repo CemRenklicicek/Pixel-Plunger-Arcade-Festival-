@@ -8,4 +8,4 @@
 
 ## Idee
 
-Tot nu toe is het vrij simpel "minig" spel.
+Tot nu toe is het vrij simpel "mining" spel.
