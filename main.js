@@ -36,21 +36,21 @@ const treasureShapes = ['square','circle','triangle'];
 
 // Fun facts about games / arcade for elderly
 const funFacts = [
-"Wist je dat het eerste arcadespel 'Computer Space' in 1971 uitkwam?",
-"Wist je dat Pong een van de eerste populaire arcadespellen was in 1972?",
-"Wist je dat Pac-Man oorspronkelijk 'Puck Man' heette?",
-"Wist je dat Space Invaders in 1978 een enorme arcade rage veroorzaakte?",
-"Wist je dat Donkey Kong de eerste game was waarin Mario verscheen?",
-"Wist je dat de allereerste computerspelletjes al in de jaren 50 werden gemaakt, zoals “Tennis for Two”?",
-"Wist je dat Tetris in 1984 uitkwam en nog steeds geliefd is?",
-"Wist je dat de eerste joystick werd gebruikt in de jaren 60 voor computerspellen?",
-"Wist je dat Frogger in 1981 werd uitgebracht en beroemd werd om zijn verkeersuitdaging?",
-"Wist je dat Mario Bros. oorspronkelijk Luigi als tweede speler introduceerde?",
-"Wist je dat Galaga een vervolg was op het oudere Galaxian-spel?",
-"Wist je dat de meeste oude arcade spellen ontworpen waren om zo snel mogelijk geld te verdienen?",
-"Wist je dat Street Fighter II in 1991 een revolutie in vechtgames veroorzaakte?",
-"Wist je dat Pac-Man's ontwerp werd geïnspireerd door een pizzapunt?",
-"Wist je dat de videospelcrash van 1983 in de VS werd veroorzaakt door overproductie en slechte kwaliteit spellen?"
+    "Wist je dat het eerste arcadespel 'Computer Space' in 1971 uitkwam?",
+    "Wist je dat Pong een van de eerste populaire arcadespellen was in 1972?",
+    "Wist je dat Pac-Man oorspronkelijk 'Puck Man' heette?",
+    "Wist je dat Space Invaders in 1978 een enorme arcade rage veroorzaakte?",
+    "Wist je dat Donkey Kong de eerste game was waarin Mario verscheen?",
+    "Wist je dat de allereerste computerspelletjes al in de jaren 50 werden gemaakt, zoals “Tennis for Two”?",
+    "Wist je dat Tetris in 1984 uitkwam en nog steeds geliefd is?",
+    "Wist je dat de eerste joystick werd gebruikt in de jaren 60 voor computerspellen?",
+    "Wist je dat Frogger in 1981 werd uitgebracht en beroemd werd om zijn verkeersuitdaging?",
+    "Wist je dat Mario Bros. oorspronkelijk Luigi als tweede speler introduceerde?",
+    "Wist je dat Galaga een vervolg was op het oudere Galaxian-spel?",
+    "Wist je dat de meeste oude arcade spellen ontworpen waren om zo snel mogelijk geld te verdienen?",
+    "Wist je dat Street Fighter II in 1991 een revolutie in vechtgames veroorzaakte?",
+    "Wist je dat Pac-Man's ontwerp werd geïnspireerd door een pizzapunt?",
+    "Wist je dat de videospelcrash van 1983 in de VS werd veroorzaakt door overproductie en slechte kwaliteit spellen?"
 ];
 
 // Generate treasures with bigger size and closer distances
